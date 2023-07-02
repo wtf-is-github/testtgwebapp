@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .map-control-container {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            width: 80%;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+            align-items: stretch;
+            align-content: center;
+            gap: 1rem;
+        }
+
+        .flex-container>.flex-items {
+            display: block;
+            flex-grow: 0;
+            flex-shrink: 1;
+            flex-basis: auto;
+            align-self: center;
+            order: 0;
+        }
+
+        #confirm {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <script src='https://unpkg.com/maplibre-gl@3.1.0/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@3.1.0/dist/maplibre-gl.css' rel='stylesheet' />
+
+</head>
+
+<body>
+    <div id="map"></div>
+    <div class="map-control-container">
+        <div class="flex-container">
+            <div class="flex-items">Ваши текущие координаты</div>
+            <div class="flex-items" id="coords">не указаны</div>
+            <div class="flex-items"><button id="confirm">Подтвердить</button></div>
+        </div>
+    </div>
+    <script>
+        // const queryParams = new URLSearchParams(window.location.search);
+
+        // // Get the value of the 'name' parameter
+        // const name = queryParams.get('name');
+        // console.log(name); // Output: John
+
+        // // Get the value of the 'age' parameter
+        // const age = queryParams.get('age');
+        // console.log(age); // Output: 25
+
+        // Initialize the map
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                sources: {
+                    osm: {
+                        type: 'raster',
+                        tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                        tileSize: 256,
+                        attribution: '&copy; OpenStreetMap Contributors',
+                        maxzoom: 19
+                    },
+                },
+                layers: [
+                    {
+                        id: 'osm',
+                        type: 'raster',
+                        source: 'osm'
+                    },
+                ],
+            },
+            center: [135, 48.5],
+            zoom: 12
+        });
+        const geolocateControl = new maplibregl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true,
+            showAccuracyCircle: true,
+            showUserLocation: true
+        });
+
+        map.addControl(geolocateControl);
+
+        const marker = new maplibregl.Marker()
+            .setLngLat([0, 0])
+            .addTo(map);
+
+        const coordtext = document.getElementById("coords");
+        const confirm = document.getElementById("confirm");
+
+        const metersToPixelsAtMaxZoom = (meters, latitude) =>
+            meters / 0.075 / Math.cos(latitude * Math.PI / 180)
+
+        const confirmAction = () => {
+            const { lng, lat } = marker.getLngLat();
+            window.Telegram.Webapp.sendData([lng, lat])
+        };
+
+        map.on('click', (e) => {
+            confirm.addEventListener('click', confirmAction)
+            const { lng, lat } = e.lngLat;
+            console.log('Clicked coordinates:', lng, lat);
+            // Use the coordinates for further processing or display
+            marker.setLngLat(e.lngLat);
+            coordtext.innerHTML = `${lng}, ${lat}`;
+            var radius = 100; // Specify the radius of the circle in meters
+            if (map.getLayer('circle-layer')) {
+                map.removeLayer('circle-layer');
+                map.removeSource('circle-source');
+            }
+            map.addSource('circle-source', {
+                type: 'geojson',
+                data: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: e.lngLat.toArray()
+                    }
+                }
+            });
+            map.addLayer({
+                id: 'circle-layer',
+                type: 'circle',
+                source: 'circle-source',
+                paint: {
+                    'circle-radius': {
+                        stops: [
+                            [0, 0],
+                            [20, metersToPixelsAtMaxZoom(1000, e.lngLat.lat)]
+                        ],
+                        base: 2
+                    },
+                    'circle-color': 'rgba(255, 0, 0, 0.2)',
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-width': 2
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
