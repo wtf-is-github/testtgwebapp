@@ -60,10 +60,11 @@
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        let coords = [0, 0]
+        const { lng, lat } = marker.getLngLat();
+        
         Telegram.WebApp.ready();
         Telegram.WebApp.MainButton.setText('Подтвердить').show().onClick(function () {
-            Telegram.WebApp.sendData({coords});
+            Telegram.WebApp.sendData({coords: [lng, lat]});
             Telegram.WebApp.close();
         });
     </script>
