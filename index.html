@@ -134,6 +134,7 @@
         const confirmAction = () => {
             const { lng, lat } = marker.getLngLat();
             window.Telegram.WebApp.sendData([lng, lat])
+            console.log("asdasdaskdn");
         };
 
         map.on('click', (e) => {
