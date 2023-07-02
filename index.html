@@ -59,6 +59,15 @@
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let coords = [0, 0]
+        Telegram.WebApp.ready();
+        Telegram.WebApp.MainButton.setText('Подтвердить').show().onClick(function () {
+
+            Telegram.WebApp.sendData(data);
+            Telegram.WebApp.close();
+        });
+    </script>
 
     <script src='https://unpkg.com/maplibre-gl@3.1.0/dist/maplibre-gl.js'></script>
     <link href='https://unpkg.com/maplibre-gl@3.1.0/dist/maplibre-gl.css' rel='stylesheet' />
@@ -75,17 +84,6 @@
         </div>
     </div>
     <script>
-        // const queryParams = new URLSearchParams(window.location.search);
-
-        // // Get the value of the 'name' parameter
-        // const name = queryParams.get('name');
-        // console.log(name); // Output: John
-
-        // // Get the value of the 'age' parameter
-        // const age = queryParams.get('age');
-        // console.log(age); // Output: 25
-
-        // Initialize the map
         const map = new maplibregl.Map({
             container: 'map',
             style: {
@@ -110,6 +108,7 @@
             center: [135, 48.5],
             zoom: 12
         });
+
         const geolocateControl = new maplibregl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
@@ -141,6 +140,7 @@
             console.log('Clicked coordinates:', lng, lat);
             // Use the coordinates for further processing or display
             marker.setLngLat(e.lngLat);
+            coords = [lng, lat];
             confirm.addEventListener('click', confirmAction)
             coordtext.innerHTML = `${lng}, ${lat}`;
             var radius = 100; // Specify the radius of the circle in meters
@@ -176,8 +176,6 @@
                 }
             });
         });
-
-        window.Telegram.WebApp.MainButton.text = "help";
     </script>
 </body>
 
