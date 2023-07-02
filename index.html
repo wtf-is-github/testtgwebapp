@@ -63,8 +63,7 @@
         let coords = [0, 0]
         Telegram.WebApp.ready();
         Telegram.WebApp.MainButton.setText('Подтвердить').show().onClick(function () {
-
-            Telegram.WebApp.sendData(data);
+            Telegram.WebApp.sendData({coords});
             Telegram.WebApp.close();
         });
     </script>
@@ -132,8 +131,7 @@
 
         const confirmAction = () => {
             const { lng, lat } = marker.getLngLat();
-            window.Telegram.WebApp.sendData([lng, lat])
-            console.log("asdasdaskdn");
+            window.Telegram.WebApp.sendData([lng, lat]);
         };
 
         map.on('click', (e) => {
