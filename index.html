@@ -133,15 +133,15 @@
 
         const confirmAction = () => {
             const { lng, lat } = marker.getLngLat();
-            window.Telegram.Webapp.sendData([lng, lat])
+            window.Telegram.WebApp.sendData([lng, lat])
         };
 
         map.on('click', (e) => {
-            confirm.addEventListener('click', confirmAction)
             const { lng, lat } = e.lngLat;
             console.log('Clicked coordinates:', lng, lat);
             // Use the coordinates for further processing or display
             marker.setLngLat(e.lngLat);
+            confirm.addEventListener('click', confirmAction)
             coordtext.innerHTML = `${lng}, ${lat}`;
             var radius = 100; // Specify the radius of the circle in meters
             if (map.getLayer('circle-layer')) {
@@ -176,6 +176,8 @@
                 }
             });
         });
+
+        window.Telegram.WebApp.MainButton.text = "help";
     </script>
 </body>
 
